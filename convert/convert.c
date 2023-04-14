@@ -2,12 +2,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <conio.h>
+
 #define ROWS 8
 #define COLS 128
 #define PARTS 8
 int main() {
-    int arr[PARTS][ROWS][COLS];
-    FILE *infile = fopen("black.txt", "r");
+    int a[PARTS][ROWS][COLS]; // Mảng để lưu trữ tất cả các phần tử trong trong file
+    FILE *infile = fopen("white.txt", "r");
 
     if (infile == NULL) {
         printf("Error opening file!");
@@ -23,69 +24,56 @@ int main() {
                 // Nếu gặp ký tự xuống dòng thì chuyển xuống hàng mới trong mảng 2 chiều
                 j--;
             } else {
-                arr[a][i][j] = c - '0'; // Chuyển đổi ký tự sang số và lưu vào mảng 2 chiều
+                a[a][i][j] = c - '0'; // Chuyển đổi ký tự sang số và lưu vào mảng 2 chiều
             }
         }
     }
     }
     fclose(infile); // Đóng file đầu vào
 
-    // In ra mảng 2 chiều
+// In ra mảng 2 chiều để kiểm tra dữ liệu sau khi đọc từ file text
+    /*
     for(int a = 0; a<PARTS ; a++){
         printf("PART: %d\n",a);
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
-            printf("%d", arr[a][i][j]);
+            printf("%d", a[a][i][j]);
         }
         printf("\n");
     }
     printf("\n\n");
     }
     printf("\n\n");
-
-    uint8_t b[PARTS][COLS] = {0};
+    */
+    uint8_t b[PARTS][COLS] = {0}; 
     for(int a = 0; a<PARTS ; a++){
-        printf("PART: %d\n",a);
-    for (int i = 0; i < COLS; i++) {
-        for (int j = ROWS - 1; j >= 0; j--) {
-            printf("%d", arr[a][j][i]);
-            b[a][i] |= (arr[a][j][i] << (j));
+        for (int i = 0; i < COLS; i++) {
+            for (int j = ROWS - 1; j >= 0; j--) {
+                b[a][i] |= (a[a][j][i] << (j));
+            }
         }
-        printf("---%02x\n", b[a][i]);
+        printf("\n\n");
     }
-    printf("\n\n");
+
+// Tiến hành mở và tạo ra một file text để ghi dữ liệu
+    FILE *outfile = fopen("white_logo.txt", "w"); // Mở file để ghi dữ liệu
+
+    if (outfile == NULL) {
+        printf("Error opening file!");
+        return 1;
     }
-    // In ra các giá trị trong mảng b ở dạng hex
-    // for(int i = 0; i < COLS; i++){
-    //     printf("%02x ", b[i]);
-    // }
-    // printf("\n");
-
-    FILE *outfile = fopen("black_logo.txt", "w"); // Mở file để ghi dữ liệu
-
-if (outfile == NULL) {
-    printf("Error opening file!");
-    return 1;
-}
 
 // Ghi dữ liệu của mảng b dưới dạng Hex vào file
-for (int i = 0; i < PARTS; i++) {
-    fprintf(outfile, "{ ");
-    for (int j = 0; j < COLS; j++) {
-        
-        if(j == COLS-1)
-            fprintf(outfile, "0x%02x", b[i][j]);
-        else
-            fprintf(outfile, "0x%02x, ", b[i][j]);
-        
+    for (int i = 0; i < PARTS; i++) {
+        fprintf(outfile, "{ ");
+        for (int j = 0; j < COLS; j++) {
+                fprintf(outfile, "0x%02x, ", b[i][j]);    
+        }
+            fprintf(outfile, "}, \n");
     }
-    if(i == PARTS-1)
-        fprintf(outfile, "} \n");
-    else
-        fprintf(outfile, "}, \n");
-}
+// Đóng file
+    fclose(outfile);
 
-fclose(outfile);
-    getch();
-    return 0;
+            getch();
+            return 0;
 }
